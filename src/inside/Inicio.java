@@ -10,6 +10,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import javax.swing.JOptionPane;
 import login.login1;
 
 /**
@@ -105,6 +106,11 @@ public class Inicio extends javax.swing.JFrame {
         btnPanel.setForeground(new java.awt.Color(255, 255, 255));
         btnPanel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/iniciar-sesion.png"))); // NOI18N
         btnPanel.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnPanel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btnPanelMouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -220,8 +226,32 @@ public class Inicio extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnInicioMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnInicioMouseClicked
-        
+        Inicio ventana = new Inicio();
+        ventana.setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_btnInicioMouseClicked
+
+    private void btnPanelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnPanelMouseClicked
+        String [] botones = {"Crear noticia", "Añadir administrador"};
+        
+        int opcion = JOptionPane.showOptionDialog(this, "¿Qué quiere hacer?","Administrador",JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.QUESTION_MESSAGE,null,botones,botones[0]);
+            switch (opcion) {
+                case 0: {
+                    Admin ventana = new Admin();
+                    ventana.setVisible(true);
+                    this.dispose();
+                    break;
+                }
+                    
+                case 1: {
+                    AdministrarAdmin ventana = new AdministrarAdmin();
+                    ventana.setVisible(true);
+                    this.dispose();
+                    break;
+                }       
+            }
+            
+    }//GEN-LAST:event_btnPanelMouseClicked
 
     public ResultSet visualizar(){
         login1 lg1 = new login1();
