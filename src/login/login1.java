@@ -248,9 +248,6 @@ public class login1 extends javax.swing.JFrame {
         try{
             Class.forName(driver);
             con = (Connection) DriverManager.getConnection(url, user, pass);
-            if(con!=null){
-                System.out.println("Conexión establecida!");
-            }
         }
         catch (ClassNotFoundException | SQLException e){
             System.out.println("No se pudo conectar!"+e);
