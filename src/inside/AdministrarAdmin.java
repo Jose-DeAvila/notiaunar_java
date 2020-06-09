@@ -6,6 +6,13 @@
 package inside;
 
 import java.awt.Color;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+import login.login1;
 
 /**
  *
@@ -13,13 +20,31 @@ import java.awt.Color;
  */
 public class AdministrarAdmin extends javax.swing.JFrame {
 
-    /**
-     * Creates new form AdministrarAdmin
-     */
+    String usuarios[] = new String[100];
+    
     public AdministrarAdmin() {
         initComponents();
         setLocationRelativeTo(null);
         this.getContentPane().setBackground(new Color(0,0,102));
+        chooseUsers();
+    }
+    
+    private void chooseUsers(){
+        int cont = 0;
+        login1 lg1 = new login1();
+        lg1.Conexion();
+        String query = "SELECT nombreCompleto FROM usuarios";
+        try{
+            Statement stmt = login1.con.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+            while(rs.next()){
+                usuarios[cont]=rs.getString("nombreCompleto");
+                cont+=1;
+            }
+            user.setModel(new javax.swing.DefaultComboBoxModel<>(usuarios));
+        }catch(SQLException ex){
+            System.out.println("Error. "+ ex);
+        }
     }
 
     /**
@@ -34,11 +59,11 @@ public class AdministrarAdmin extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jLabel9 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
-        jComboBox1 = new javax.swing.JComboBox<>();
+        user = new javax.swing.JComboBox<>();
         jLabel11 = new javax.swing.JLabel();
-        jComboBox2 = new javax.swing.JComboBox<>();
-        jButton1 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
+        tipo = new javax.swing.JComboBox<>();
+        btnModify = new javax.swing.JButton();
+        btnVolver = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -48,22 +73,30 @@ public class AdministrarAdmin extends javax.swing.JFrame {
         jLabel10.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
         jLabel10.setText("SELECCIONAR USUARIO");
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "USUARIO 1", "USUARIO 2", "USUARIO 3", " " }));
-
         jLabel11.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
         jLabel11.setText("TIPO DE USUARIO");
 
-        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "TIPO 1", "TIPO 2", " " }));
+        tipo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "TIPO 1", "TIPO 2" }));
 
-        jButton1.setBackground(new java.awt.Color(0, 50, 217));
-        jButton1.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
-        jButton1.setForeground(new java.awt.Color(255, 255, 255));
-        jButton1.setText("MODIFICAR");
+        btnModify.setBackground(new java.awt.Color(0, 50, 217));
+        btnModify.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        btnModify.setForeground(new java.awt.Color(255, 255, 255));
+        btnModify.setText("MODIFICAR");
+        btnModify.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnModifyActionPerformed(evt);
+            }
+        });
 
-        jButton3.setBackground(new java.awt.Color(0, 50, 217));
-        jButton3.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
-        jButton3.setForeground(new java.awt.Color(255, 255, 255));
-        jButton3.setText("VOLVER");
+        btnVolver.setBackground(new java.awt.Color(0, 50, 217));
+        btnVolver.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        btnVolver.setForeground(new java.awt.Color(255, 255, 255));
+        btnVolver.setText("VOLVER");
+        btnVolver.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnVolverActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -71,17 +104,17 @@ public class AdministrarAdmin extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(109, 109, 109)
-                .addComponent(jButton1)
+                .addComponent(btnModify)
                 .addGap(84, 84, 84)
-                .addComponent(jButton3)
+                .addComponent(btnVolver)
                 .addGap(0, 0, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addGap(19, 53, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(jComboBox2, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jComboBox1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 439, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(tipo, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(user, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 439, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGroup(jPanel1Layout.createSequentialGroup()
                             .addGap(130, 130, 130)
                             .addComponent(jLabel11)
@@ -101,15 +134,15 @@ public class AdministrarAdmin extends javax.swing.JFrame {
                 .addGap(43, 43, 43)
                 .addComponent(jLabel10, javax.swing.GroupLayout.DEFAULT_SIZE, 33, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(user, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(32, 32, 32)
                 .addComponent(jLabel11, javax.swing.GroupLayout.DEFAULT_SIZE, 34, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
-                .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(tipo, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(55, 55, 55)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(btnModify, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnVolver, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(66, 66, 66))
         );
 
@@ -129,6 +162,53 @@ public class AdministrarAdmin extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnVolverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVolverActionPerformed
+        Inicio init = new Inicio();
+        init.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnVolverActionPerformed
+
+    private void btnModifyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModifyActionPerformed
+        String usuario = user.getSelectedItem().toString();
+        if(tipo.getSelectedItem().toString()=="TIPO 1"){
+            int op = JOptionPane.showConfirmDialog(null, "El usuario perderá los permisos de administrador.\n¿Desea continuar?", "CONFIRMACION", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
+            if(op==JOptionPane.YES_OPTION){
+                try {
+                    JOptionPane.showMessageDialog(null, "Cambiando...", "ACTUALIZANDO CAMBIOS", JOptionPane.WARNING_MESSAGE);
+                    String query = "UPDATE usuarios SET tipo=0 where nombreCompleto='"+usuario+"'";
+                    Statement stmt = login1.con.createStatement();
+                    int numDatos = stmt.executeUpdate(query);
+                    if(numDatos>0){
+                        JOptionPane.showMessageDialog(null, "Cambiado correctamente", "CONFIRMACION DE CAMBIO", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                    else{
+                        JOptionPane.showMessageDialog(null, "Ocurrió un error al modificar el usuario.", "CONFIRMACION DE CAMBIO", JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (SQLException ex) {
+                    System.out.println("Error. -> "+ex);
+                }
+            }
+        }else if(tipo.getSelectedItem().toString()=="TIPO 2"){
+            int op = JOptionPane.showConfirmDialog(null, "El usuario obtendrá los permisos de administrador.\n¿Desea continuar?", "CONFIRMACION", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
+            if(op==JOptionPane.YES_OPTION){
+                try {
+                    JOptionPane.showMessageDialog(null, "Cambiando...", "ACTUALIZANDO CAMBIOS", JOptionPane.WARNING_MESSAGE);
+                    String query = "UPDATE usuarios SET tipo=1 where nombreCompleto='"+usuario+"'";
+                    Statement stmt = login1.con.createStatement();
+                    int numDatos = stmt.executeUpdate(query);
+                    if(numDatos>0){
+                        JOptionPane.showMessageDialog(null, "Cambiado correctamente", "CONFIRMACION DE CAMBIO", JOptionPane.INFORMATION_MESSAGE);
+                    }
+                    else{
+                        JOptionPane.showMessageDialog(null, "Ocurrió un error al modificar el usuario.", "CONFIRMACION DE CAMBIO", JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (SQLException ex) {
+                    System.out.println("Error. -> "+ex);
+                }
+            }
+        }
+    }//GEN-LAST:event_btnModifyActionPerformed
 
     /**
      * @param args the command line arguments
@@ -166,13 +246,13 @@ public class AdministrarAdmin extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JComboBox<String> jComboBox1;
-    private javax.swing.JComboBox<String> jComboBox2;
+    private javax.swing.JButton btnModify;
+    private javax.swing.JButton btnVolver;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JComboBox<String> tipo;
+    private javax.swing.JComboBox<String> user;
     // End of variables declaration//GEN-END:variables
 }

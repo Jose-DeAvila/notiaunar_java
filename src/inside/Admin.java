@@ -6,6 +6,20 @@
 package inside;
 
 import java.awt.Color;
+import java.awt.HeadlessException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import login.login1;
 
 /**
  *
@@ -13,13 +27,14 @@ import java.awt.Color;
  */
 public class Admin extends javax.swing.JFrame {
 
-    /**
-     * Creates new form Admin
-     */
+    String ruta1 = null; 
+    public static String nombre;
+    
     public Admin() {
         initComponents();
         setLocationRelativeTo(null);
         this.getContentPane().setBackground(new Color(0,0,102));
+        
     }
 
     /**
@@ -34,19 +49,19 @@ public class Admin extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jLabel9 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
+        txtTitulo = new javax.swing.JTextField();
         jLabel11 = new javax.swing.JLabel();
-        jTextField3 = new javax.swing.JTextField();
+        txtDescripcion = new javax.swing.JTextField();
         jLabel12 = new javax.swing.JLabel();
         jLabel14 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
-        jTextField4 = new javax.swing.JTextField();
+        lblurl1 = new javax.swing.JTextField();
         jLabel13 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
-        jComboBox1 = new javax.swing.JComboBox<>();
-        jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
+        txtContenido = new javax.swing.JTextArea();
+        facultad = new javax.swing.JComboBox<>();
+        btnSubir = new javax.swing.JButton();
+        btnVolver = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -68,28 +83,43 @@ public class Admin extends javax.swing.JFrame {
         jLabel14.setText("SELECCIONAR IMAGEN");
 
         jButton1.setText("SELECCIONAR ARCHIVO");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
-        jTextField4.setText("Ningún archivo seleccionado...");
+        lblurl1.setText("Ningún archivo seleccionado...");
 
         jLabel13.setFont(new java.awt.Font("Dialog", 1, 18)); // NOI18N
         jLabel13.setText("CONTENIDO");
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jScrollPane1.setViewportView(jTextArea1);
+        txtContenido.setColumns(20);
+        txtContenido.setRows(5);
+        jScrollPane1.setViewportView(txtContenido);
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "SELECCIONA UNA FACULTAD", "GENERAL", "INGENIERÍA INFORMÁTICA", "CONTADURÍA PÚBLICA", "DECORACIÓN DE INTERIORES", "COCINA NACIONAL E INTERNACIONAL" }));
-        jComboBox1.setToolTipText("");
+        facultad.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "SELECCIONA UNA FACULTAD", "GENERAL", "INGENIERÍA INFORMÁTICA", "CONTADURÍA PÚBLICA", "DECORACIÓN DE INTERIORES", "COCINA NACIONAL E INTERNACIONAL" }));
+        facultad.setToolTipText("");
 
-        jButton2.setBackground(new java.awt.Color(0, 50, 217));
-        jButton2.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
-        jButton2.setForeground(new java.awt.Color(255, 255, 255));
-        jButton2.setText("SUBIR ARTICULO");
+        btnSubir.setBackground(new java.awt.Color(0, 50, 217));
+        btnSubir.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        btnSubir.setForeground(new java.awt.Color(255, 255, 255));
+        btnSubir.setText("SUBIR ARTICULO");
+        btnSubir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSubirActionPerformed(evt);
+            }
+        });
 
-        jButton3.setBackground(new java.awt.Color(0, 50, 217));
-        jButton3.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
-        jButton3.setForeground(new java.awt.Color(255, 255, 255));
-        jButton3.setText("VOLVER");
+        btnVolver.setBackground(new java.awt.Color(0, 50, 217));
+        btnVolver.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
+        btnVolver.setForeground(new java.awt.Color(255, 255, 255));
+        btnVolver.setText("VOLVER");
+        btnVolver.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnVolverActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -106,7 +136,7 @@ public class Admin extends javax.swing.JFrame {
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addComponent(jLabel10)
                                 .addGap(36, 36, 36)
-                                .addComponent(jTextField1))
+                                .addComponent(txtTitulo))
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel13)
@@ -114,22 +144,22 @@ public class Admin extends javax.swing.JFrame {
                                 .addGap(32, 32, 32)
                                 .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 299, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, 205, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(lblurl1, javax.swing.GroupLayout.PREFERRED_SIZE, 205, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel11)
                                     .addComponent(jLabel12))
                                 .addGap(18, 18, 18)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 604, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, 604, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                    .addComponent(facultad, javax.swing.GroupLayout.PREFERRED_SIZE, 604, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(txtDescripcion, javax.swing.GroupLayout.PREFERRED_SIZE, 604, javax.swing.GroupLayout.PREFERRED_SIZE)))
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 754, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(69, Short.MAX_VALUE))
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(160, 160, 160)
-                .addComponent(jButton2)
+                .addComponent(btnSubir)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jButton3)
+                .addComponent(btnVolver)
                 .addGap(215, 215, 215))
         );
         jPanel1Layout.setVerticalGroup(
@@ -139,31 +169,32 @@ public class Admin extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(39, 39, 39)
-                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(txtTitulo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(34, 34, 34)
                         .addComponent(jLabel10, javax.swing.GroupLayout.DEFAULT_SIZE, 37, Short.MAX_VALUE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtDescripcion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel11, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jLabel12, javax.swing.GroupLayout.DEFAULT_SIZE, 34, Short.MAX_VALUE)
-                    .addComponent(jComboBox1))
+                    .addComponent(facultad))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel14, javax.swing.GroupLayout.DEFAULT_SIZE, 31, Short.MAX_VALUE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel14, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(lblurl1, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel13)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 331, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(32, 32, 32)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(btnSubir, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnVolver, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(46, 46, 46))
         );
 
@@ -184,6 +215,70 @@ public class Admin extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btnVolverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVolverActionPerformed
+        Inicio init = new Inicio();
+        init.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnVolverActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        JFileChooser j = new JFileChooser();
+        int ap = j.showOpenDialog(this);
+        if(ap==JFileChooser.APPROVE_OPTION){
+            ruta1 = j.getSelectedFile().getAbsolutePath();
+            lblurl1.setText(ruta1);
+        }
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void btnSubirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSubirActionPerformed
+        String titulo = txtTitulo.getText();
+        String descripcion = txtDescripcion.getText();
+        String facultad1 = this.facultad.getSelectedItem().toString();
+        String contenido = txtContenido.getText();
+        String url1 = lblurl1.getText();
+        if(contenido.trim().length()!=0 && titulo.trim().length()!=0 && descripcion.trim().length()!=0 && facultad1.trim().length()!=0 && url1.trim().length()!=0){
+            JOptionPane.showMessageDialog(null, "Subiendo noticia.", "ESTADO DEL FORMULARIO", JOptionPane.INFORMATION_MESSAGE);
+            saveNotice(titulo, descripcion, facultad1, contenido, ruta1);
+        }else{
+            JOptionPane.showMessageDialog(null, "NO campos sin llenar.", "ESTADO DEL FORMULARIO", JOptionPane.WARNING_MESSAGE);
+        }
+    }//GEN-LAST:event_btnSubirActionPerformed
+
+    public void saveNotice(String title, String description, String facult, String content, String rute){
+        Calendar c = new GregorianCalendar();
+        login1 lg1 = new login1();
+        lg1.Conexion();
+        String fecha = c.get(Calendar.DATE)+"-"+c.get(Calendar.MONTH)+"-"+c.get(Calendar.YEAR);
+        String query = "INSERT INTO noticias (autor, fecha, titulo, facultad, descripc_breve, img, text_complet) VALUES(?,?,?,?,?,?,?)";
+        PreparedStatement ps;
+        try{
+            File file1 = new File(rute);
+            FileInputStream fil1 = new FileInputStream(file1);
+            ps = login1.con.prepareStatement(query);
+            ps.setString(1, nombre);
+            ps.setString(2, fecha);
+            ps.setString(3, title);
+            ps.setString(4, facult);
+            ps.setString(5, description);
+            ps.setBinaryStream(6, fil1);
+            ps.setString(7, content);
+            int doit = ps.executeUpdate();
+            if(doit>0){
+                JOptionPane.showMessageDialog(null, "NOTICIA SUBIDA EXITOSAMENTE \nSerás enviado al inicio.", "ESTADO NOTICIA", JOptionPane.INFORMATION_MESSAGE);
+                Inicio init = new Inicio();
+                init.setVisible(true);
+                this.dispose();
+            }
+            else{
+                JOptionPane.showMessageDialog(null, "LA NOTICIA NO PUDO SER SUBIDA", "ESTADO NOTICIA", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+        catch(HeadlessException | SQLException ex){
+            System.out.println("Error. ->"+ ex.getMessage());
+        } catch (FileNotFoundException ex) {
+            System.out.println("Error. ->"+ ex.getMessage());
+        }
+    }
     /**
      * @param args the command line arguments
      */
@@ -218,12 +313,11 @@ public class Admin extends javax.swing.JFrame {
             }
         });
     }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnSubir;
+    private javax.swing.JButton btnVolver;
+    private javax.swing.JComboBox<String> facultad;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
@@ -232,9 +326,11 @@ public class Admin extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextArea jTextArea1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField3;
-    private javax.swing.JTextField jTextField4;
+    private javax.swing.JTextField lblurl1;
+    private javax.swing.JTextArea txtContenido;
+    private javax.swing.JTextField txtDescripcion;
+    private javax.swing.JTextField txtTitulo;
     // End of variables declaration//GEN-END:variables
+
 }
+

@@ -20,6 +20,8 @@ import login.login1;
 public class Inicio extends javax.swing.JFrame {
 
     public static int tipo;
+    public static String nombre;
+    
     public Inicio() {
         initComponents();
         setLocationRelativeTo(null);
@@ -101,6 +103,11 @@ public class Inicio extends javax.swing.JFrame {
         btnExit.setForeground(new java.awt.Color(255, 255, 255));
         btnExit.setIcon(new javax.swing.ImageIcon(getClass().getResource("/imagenes/cerrar-sesion.png"))); // NOI18N
         btnExit.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btnExit.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                btnExitMouseClicked(evt);
+            }
+        });
 
         btnPanel.setFont(new java.awt.Font("Dialog", 1, 25)); // NOI18N
         btnPanel.setForeground(new java.awt.Color(255, 255, 255));
@@ -237,6 +244,7 @@ public class Inicio extends javax.swing.JFrame {
         int opcion = JOptionPane.showOptionDialog(this, "¿Qué quiere hacer?","Administrador",JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.QUESTION_MESSAGE,null,botones,botones[0]);
             switch (opcion) {
                 case 0: {
+                    Admin.nombre = nombre;
                     Admin ventana = new Admin();
                     ventana.setVisible(true);
                     this.dispose();
@@ -253,11 +261,17 @@ public class Inicio extends javax.swing.JFrame {
             
     }//GEN-LAST:event_btnPanelMouseClicked
 
+    private void btnExitMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnExitMouseClicked
+        login1 lg1 = new login1();
+        lg1.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_btnExitMouseClicked
+
     public ResultSet visualizar(){
         login1 lg1 = new login1();
         Connection Conexion;
         Conexion = lg1.Conexion();
-        ResultSet rs = null;
+        ResultSet rs = null;    
         try{
             PreparedStatement ps = login1.con.prepareStatement("SELECT * FROM noticias");
             rs = ps.executeQuery();

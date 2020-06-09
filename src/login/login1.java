@@ -208,7 +208,9 @@ public class login1 extends javax.swing.JFrame {
             if(passs.equals(pass1)){
                 JOptionPane.showMessageDialog(null, "Acceso concedido. Espere un momento mientras lo redireccionamos.", "Access Confirm", INFORMATION_MESSAGE);
                 int tipo = rs.getInt("tipo");
+                String nombre = rs.getString("nombreCompleto");
                 Inicio.tipo = tipo;
+                Inicio.nombre = nombre;
                 Inicio init = new Inicio();
                 init.setVisible(true);
                 this.dispose();
