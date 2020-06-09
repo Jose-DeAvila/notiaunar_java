@@ -248,7 +248,7 @@ public class Admin extends javax.swing.JFrame {
         Calendar c = new GregorianCalendar();
         login1 lg1 = new login1();
         lg1.Conexion();
-        String fecha = c.get(Calendar.DATE)+"-"+c.get(Calendar.MONTH)+"-"+c.get(Calendar.YEAR);
+        String fecha = c.get(Calendar.DATE)+"-"+(c.get(Calendar.MONTH)+1)+"-"+c.get(Calendar.YEAR);
         String query = "INSERT INTO noticias (autor, fecha, titulo, facultad, descripc_breve, img, text_complet) VALUES(?,?,?,?,?,?,?)";
         PreparedStatement ps;
         try{
