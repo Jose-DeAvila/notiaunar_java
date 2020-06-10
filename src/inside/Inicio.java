@@ -7,9 +7,16 @@ package inside;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.PopupMenu;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import login.login1;
 
@@ -21,8 +28,9 @@ public class Inicio extends javax.swing.JFrame {
 
     public static int tipo;
     public static String nombre;
-    public JLabel titulos[], descripciones[], fechas[], autores[], facultades[];
+    public JLabel titulos[], descripciones[], fechas[], autores[], facultades[], lblimagenes[];
     public JButton btnLeerMas[];
+    public Object imagenes[];
     
     public Inicio() {
         initComponents();
@@ -166,7 +174,7 @@ public class Inicio extends javax.swing.JFrame {
         );
 
         jPanel2.setAutoscrolls(true);
-        jPanel2.setPreferredSize(new java.awt.Dimension(688, 1000));
+        jPanel2.setPreferredSize(new java.awt.Dimension(688, 400));
 
         jLabel9.setFont(new java.awt.Font("Dialog", 1, 24)); // NOI18N
         jLabel9.setText("NOTICIAS ACTUALES");
@@ -192,7 +200,7 @@ public class Inicio extends javax.swing.JFrame {
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel9)
                     .addComponent(jLabel11))
-                .addContainerGap(962, Short.MAX_VALUE))
+                .addContainerGap(461, Short.MAX_VALUE))
         );
 
         jScrollPane1.setViewportView(jPanel2);
@@ -265,6 +273,7 @@ public class Inicio extends javax.swing.JFrame {
         }catch(Exception ex){
             System.out.println("Error->"+ex);
         }
+        System.out.println(aux);
         return aux;
     }
     
@@ -284,6 +293,14 @@ public class Inicio extends javax.swing.JFrame {
     
     public void actualizarNoticias(String facultad){
         int numDatos = contarDatos();
+        if(numDatos==0){
+            JLabel lblno = new JLabel();
+            lblno.setText("No hay noticias por mostrar.");
+            lblno.setFont(new java.awt.Font("Trebuchet MS", 1, 32));
+            lblno.setBounds(120, 60, 600, 50);
+            jPanel2.add(lblno);
+        }
+        jPanel2.setPreferredSize(new Dimension(688,numDatos*160));
         String titulos3[], descripciones3[], fechas3[], autores3[], facultades3[];
         login1 lg1 = new login1();
         lg1.Conexion();
@@ -297,6 +314,7 @@ public class Inicio extends javax.swing.JFrame {
                 fechas3 = new String[numDatos];
                 autores3 = new String[numDatos];
                 facultades3 = new String[numDatos];
+                imagenes = new Object[numDatos];
                 rs.next();
                 for(int i=0; i<numDatos; i++){
                     titulos3[i]=rs.getString("titulo");
@@ -304,6 +322,16 @@ public class Inicio extends javax.swing.JFrame {
                     fechas3[i]=rs.getString("fecha");
                     autores3[i]=rs.getString("autor");
                     facultades3[i]=rs.getString("facultad");
+                    Blob blob = rs.getBlob("img");
+                    byte[] data = blob.getBytes(1, (int)blob.length());
+                    BufferedImage img = null;
+                    try{
+                        img = ImageIO.read(new ByteArrayInputStream(data));
+                    }catch(IOException ex){
+                        System.out.println("Error. "+ex.getMessage());
+                    }
+                    ImageIcon icono = new ImageIcon(img.getScaledInstance(120, 120, img.SCALE_DEFAULT));
+                    imagenes[i] = new JLabel(icono);
                     rs.next();
                     System.out.println("1");
                 }
@@ -313,6 +341,8 @@ public class Inicio extends javax.swing.JFrame {
                 autores = new JLabel[numDatos];
                 facultades = new JLabel[numDatos];
                 btnLeerMas = new JButton[numDatos];
+                lblimagenes = new JLabel[numDatos];
+                
                 for(int i=0; i<numDatos; i++){
                     System.out.println("2");
                     titulos[i] = new JLabel();
@@ -339,22 +369,26 @@ public class Inicio extends javax.swing.JFrame {
                     facultades[i].setText(facultades3[i]);
                     facultades[i].setFont(new java.awt.Font("Trebuchet MS", 2, 14));
                     facultades[i].setForeground(new java.awt.Color(0,0,102));
-                    facultades[i].setBounds(150, 160+i*140, 250, 20);
+                    facultades[i].setBounds(150, 140+i*140, 250, 20);
                     jPanel2.add(facultades[i]);
                     btnLeerMas[i] = new JButton();
                     btnLeerMas[i].setText("LEER MAS");
                     btnLeerMas[i].setBackground(new java.awt.Color(0,0,102));
                     btnLeerMas[i].setForeground(Color.white);
-                    btnLeerMas[i].setBounds(550, 160+i*140, 100, 30);
+                    btnLeerMas[i].setBounds(550, 140+i*140, 100, 30);
                     jPanel2.add(btnLeerMas[i]);
+                    lblimagenes[i] = (JLabel) imagenes[i];
+                    lblimagenes[i].setBounds(10, 50+i*140, 120, 120);
+                    jPanel2.add(lblimagenes[i]);
                 }
+                
             } catch (SQLException ex) {
                 System.out.println("Error. ->" + ex);
             }
-            
         }
         
     }
+    
     /**
      * @param args the command line arguments
      */
