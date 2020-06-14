@@ -20,7 +20,7 @@ public class register extends javax.swing.JFrame {
     private static Connection con;
     private static final String driver="com.mysql.cj.jdbc.Driver";
     private static final String user="root";
-    private static final String pass="";
+    private static final String pass="26930470";
     private static final String url="jdbc:mysql://localhost:3306/notiaunar?serverTimezone=UTC";
     public register() {
         initComponents();

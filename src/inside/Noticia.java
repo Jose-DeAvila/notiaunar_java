@@ -5,6 +5,7 @@
  */
 package inside;
 
+import static inside.Inicio.ids3;
 import static inside.Inicio.nombre;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -32,8 +33,7 @@ import login.login1;
  */
 public class Noticia extends javax.swing.JFrame {
 
-    public JLabel titulos[], descripciones[], fechas[], autores[], facultades[], lblimagenes[];
-    public Object imagenes[];
+    public static int id;
     /**
      * Creates new form Noticia
      */
@@ -41,7 +41,7 @@ public class Noticia extends javax.swing.JFrame {
         initComponents();
         setLocationRelativeTo(null);
         this.getContentPane().setBackground(Color.white);
-        verNoticia("general");
+        mostrarNoticia(id);
     }
 
     public int contarDatos(){
@@ -75,93 +75,40 @@ public class Noticia extends javax.swing.JFrame {
         return rs;
     }
     
-    public void verNoticia(String facultad){
-        int numDatos = contarDatos();
-        if(numDatos==0){
-            JLabel lblno = new JLabel();
-            lblno.setText("No hay noticias por mostrar.");
-            lblno.setFont(new java.awt.Font("Trebuchet MS", 1, 32));
-            lblno.setBounds(120, 60, 600, 50);
-            jPanel2.add(lblno);
-        }
-        jPanel2.setPreferredSize(new Dimension(688,numDatos*160));
-        String titulos3[], descripciones3[], fechas3[], autores3[], facultades3[];
+    public void mostrarNoticia(int id){
         login1 lg1 = new login1();
         lg1.Conexion();
-        if(facultad=="general"){
-            String query = "SELECT * FROM noticias";
-            try {
-                Statement stmt = login1.con.createStatement();
-                ResultSet rs = stmt.executeQuery(query);
-                titulos3 = new String[numDatos];
-                descripciones3 = new String[numDatos];
-                fechas3 = new String[numDatos];
-                autores3 = new String[numDatos];
-                facultades3 = new String[numDatos];
-                imagenes = new Object[numDatos];
-                rs.next();
-                for(int i=0; i<numDatos; i++){
-                    titulos3[i]=rs.getString("titulo");
-                    descripciones3[i]=rs.getString("descripc_breve");
-                    fechas3[i]=rs.getString("fecha");
-                    autores3[i]=rs.getString("autor");
-                    facultades3[i]=rs.getString("facultad");
-                    Blob blob = rs.getBlob("img");
-                    byte[] data = blob.getBytes(1, (int)blob.length());
-                    BufferedImage img = null;
-                    try{
-                        img = ImageIO.read(new ByteArrayInputStream(data));
-                    }catch(IOException ex){
-                        System.out.println("Error. "+ex.getMessage());
-                    }
-                    ImageIcon icono = new ImageIcon(img.getScaledInstance(500, 500, img.SCALE_DEFAULT));
-                    imagenes[i] = new JLabel(icono);
-                    rs.next();
-                    System.out.println("1");
-                }
-                titulos = new JLabel[numDatos];
-                descripciones = new JLabel[numDatos];
-                fechas = new JLabel[numDatos];
-                autores = new JLabel[numDatos];
-                facultades = new JLabel[numDatos];
-                lblimagenes = new JLabel[numDatos];
-                
-                for(int i=0; i<numDatos; i++){
-                    System.out.println("2");
-                    titulos[i] = new JLabel();
-                    titulos[i].setText(titulos3[i]);
-                    titulos[i].setFont(new java.awt.Font("Trebuchet MS", 1, 25));
-                    titulos[i].setBounds(150, 40+i*140, 530, 30);
-                    jPanel2.add(titulos[i]);
-                    descripciones[i] = new JLabel();
-                    descripciones[i].setText("<html>"+descripciones3[i]+"</html>");
-                    descripciones[i].setBounds(150, 240+i*140, 530, 80);
-                    descripciones[i].setVerticalAlignment(javax.swing.SwingConstants.TOP);
-                    jPanel2.add(descripciones[i]);
-                    fechas[i] = new JLabel();
-                    fechas[i].setText(fechas3[i]+" - ");
-                    fechas[i].setFont(new java.awt.Font("Trebuchet MS", 1, 14));
-                    fechas[i].setBounds(150, 65+i*140, 100, 20);
-                    jPanel2.add(fechas[i]);
-                    autores[i] = new JLabel();
-                    autores[i].setText(autores3[i]);
-                    autores[i].setFont(new java.awt.Font("Trebuchet MS", 1, 14));
-                    autores[i].setBounds(223, 65+i*140, 250, 20);
-                    jPanel2.add(autores[i]);
-                    facultades[i] = new JLabel();
-                    facultades[i].setText(facultades3[i]);
-                    facultades[i].setFont(new java.awt.Font("Trebuchet MS", 2, 14));
-                    facultades[i].setForeground(new java.awt.Color(0,0,102));
-                    facultades[i].setBounds(150, 140+i*140, 250, 20);
-                    jPanel2.add(facultades[i]);
-                    lblimagenes[i] = (JLabel) imagenes[i];
-                    lblimagenes[i].setBounds(150, 100+i*140, 500, 120);
-                    jPanel2.add(lblimagenes[i]);
-                    
-                }    
-            } catch (SQLException ex) {
-                System.out.println("Error. ->" + ex);
+        String query = "SELECT * FROM noticias WHERE id='"+id+"'";
+        try{
+            Statement stmt = login1.con.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+            rs.next();
+            JLabel lblTitulo = new JLabel();
+            lblTitulo.setText(rs.getString("titulo"));
+            lblTitulo.setFont(new java.awt.Font("Trebuchet MS", 1, 32));
+            lblTitulo.setHorizontalAlignment(new javax.swing.SwingConstants() {
+            }.CENTER);
+            lblTitulo.setBounds(40, 20, 650, 60);
+            jPanel2.add(lblTitulo);
+            JLabel lblImagen;
+            Blob blob = rs.getBlob("img");
+            byte[] data = blob.getBytes(1, (int)blob.length());
+            BufferedImage img = null;
+            try{
+                img = ImageIO.read(new ByteArrayInputStream(data));
             }
+            catch(IOException ex){
+                System.out.println("Error. "+ex.getMessage());
+            }
+            ImageIcon icono = new ImageIcon(img.getScaledInstance(650, 650, img.SCALE_DEFAULT));
+            lblImagen = new JLabel(icono);
+            lblImagen.setBounds(40, 100, 650, 650);
+            System.out.println(img.getWidth());
+            jPanel2.add(lblImagen);
+            jPanel2.setPreferredSize(new Dimension(688, 2000));
+        }
+        catch(SQLException ex){
+            
         }
     }
     /**
@@ -183,6 +130,7 @@ public class Noticia extends javax.swing.JFrame {
         btnCocina = new javax.swing.JLabel();
         btnExit = new javax.swing.JLabel();
         btnPanel = new javax.swing.JLabel();
+        jScrollPane2 = new javax.swing.JScrollPane();
         jScrollPane1 = new javax.swing.JScrollPane();
         jPanel2 = new javax.swing.JPanel();
         jLabel11 = new javax.swing.JLabel();
@@ -298,7 +246,7 @@ public class Noticia extends javax.swing.JFrame {
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap(715, Short.MAX_VALUE)
+                .addContainerGap(719, Short.MAX_VALUE)
                 .addComponent(jLabel11)
                 .addGap(112, 112, 112))
         );
@@ -307,10 +255,12 @@ public class Noticia extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel11)
-                .addContainerGap(525, Short.MAX_VALUE))
+                .addContainerGap(526, Short.MAX_VALUE))
         );
 
         jScrollPane1.setViewportView(jPanel2);
+
+        jScrollPane2.setViewportView(jScrollPane1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -319,7 +269,7 @@ public class Noticia extends javax.swing.JFrame {
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1)
+                .addComponent(jScrollPane2)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -327,7 +277,7 @@ public class Noticia extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 570, Short.MAX_VALUE)
+                .addComponent(jScrollPane2)
                 .addContainerGap())
         );
 
@@ -418,5 +368,6 @@ public class Noticia extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     // End of variables declaration//GEN-END:variables
 }

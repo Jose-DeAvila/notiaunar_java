@@ -7,6 +7,7 @@ package inside;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.PopupMenu;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -29,7 +30,7 @@ import login.login1;
 public class Inicio extends javax.swing.JFrame {
 
     int icia;
-    public static int tipo;
+    public static int tipo, ids3[];
     public static String nombre;
     public JLabel titulos[], descripciones[], fechas[], autores[], facultades[], lblimagenes[];
     public JButton btnLeerMas[];
@@ -276,7 +277,6 @@ public class Inicio extends javax.swing.JFrame {
         }catch(Exception ex){
             System.out.println("Error->"+ex);
         }
-        System.out.println(aux);
         return aux;
     }
     
@@ -317,6 +317,7 @@ public class Inicio extends javax.swing.JFrame {
                 fechas3 = new String[numDatos];
                 autores3 = new String[numDatos];
                 facultades3 = new String[numDatos];
+                ids3 = new int[numDatos];
                 imagenes = new Object[numDatos];
                 rs.next();
                 for(int i=0; i<numDatos; i++){
@@ -335,8 +336,8 @@ public class Inicio extends javax.swing.JFrame {
                     }
                     ImageIcon icono = new ImageIcon(img.getScaledInstance(120, 120, img.SCALE_DEFAULT));
                     imagenes[i] = new JLabel(icono);
+                    ids3[i] = rs.getInt("id");
                     rs.next();
-                    System.out.println("1");
                 }
                 titulos = new JLabel[numDatos];
                 descripciones = new JLabel[numDatos];
@@ -347,7 +348,6 @@ public class Inicio extends javax.swing.JFrame {
                 lblimagenes = new JLabel[numDatos];
                 
                 for(int i=0; i<numDatos; i++){
-                    System.out.println("2");
                     titulos[i] = new JLabel();
                     titulos[i].setText(titulos3[i]);
                     titulos[i].setFont(new java.awt.Font("Trebuchet MS", 1, 18));
@@ -386,10 +386,10 @@ public class Inicio extends javax.swing.JFrame {
                     
                     btnLeerMas[i].addActionListener(new ActionListener(){
                     @Override
-                    public void actionPerformed(ActionEvent evt){
-                        btnLeerMasActionPerformed(evt);
+                        public void actionPerformed(ActionEvent evt){
+                            btnLeerMasActionPerformed(evt);
                         }
-                        });
+                    });
                 }    
             } catch (SQLException ex) {
                 System.out.println("Error. ->" + ex);
@@ -398,11 +398,20 @@ public class Inicio extends javax.swing.JFrame {
     }
         
     public void btnLeerMasActionPerformed(ActionEvent evt){
-        
-        JOptionPane.showMessageDialog(null, "ID DE LA NOTICIA: "+icia);
-                Noticia ventana = new Noticia();
-                ventana.setVisible(true);
+        int numDatos = contarDatos();
+        JButton btnPulsed = (JButton) evt.getSource();
+        int aux = 0;
+        // System.out.println(btnPulsed.getLocation());
+        Point location = btnPulsed.getLocation();
+        for(int i=0; i<numDatos; i++){
+            if(location.equals(btnLeerMas[i].getLocation())){
+                Noticia.id = ids3[i];
+                Noticia nt = new Noticia();
+                nt.setVisible(true);
                 this.dispose();
+                break;
+            }
+        }
     }
     
     /**

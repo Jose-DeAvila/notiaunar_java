@@ -23,7 +23,7 @@ public class login1 extends javax.swing.JFrame {
     public static Connection con;
     private static final String driver="com.mysql.cj.jdbc.Driver";
     private static final String user="root";
-    private static final String pass="";
+    private static final String pass="26930470";
     private static final String url="jdbc:mysql://localhost:3306/notiaunar?serverTimezone=UTC";
     /**
      * Creates new form login1
@@ -204,7 +204,7 @@ public class login1 extends javax.swing.JFrame {
         try (Statement stmt = con.createStatement()) {
             ResultSet rs = stmt.executeQuery(query);
             rs.next();
-            String pass1 = rs.getString("contrasenia");
+            String pass1 = rs.getString("contrasena");
             if(passs.equals(pass1)){
                 JOptionPane.showMessageDialog(null, "Acceso concedido. Espere un momento mientras lo redireccionamos.", "Access Confirm", INFORMATION_MESSAGE);
                 int tipo = rs.getInt("tipo");
