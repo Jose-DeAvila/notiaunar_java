@@ -5,52 +5,165 @@
  */
 package inside;
 
+import static inside.Inicio.nombre;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.PopupMenu;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.sql.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.sql.Blob;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import javax.imageio.ImageIO;
-import javax.swing.*;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import login.login1;
 
 /**
  *
- * @author ASUS_X441M
+ * @author ASUS
  */
-public class Inicio extends javax.swing.JFrame {
+public class Noticia extends javax.swing.JFrame {
 
-    int icia;
-    public static int tipo;
-    public static String nombre;
     public JLabel titulos[], descripciones[], fechas[], autores[], facultades[], lblimagenes[];
-    public JButton btnLeerMas[];
     public Object imagenes[];
-    
-    public Inicio() {
+    /**
+     * Creates new form Noticia
+     */
+    public Noticia() {
         initComponents();
         setLocationRelativeTo(null);
         this.getContentPane().setBackground(Color.white);
-        // panelPrincip.setBackground(Color.white);
-        actualizarNoticias("general");
-        if(tipo==1){
-            btnPanel.setVisible(true);
-            btnPanel.setEnabled(true);
-        }else{
-            btnPanel.setVisible(false);
-            btnPanel.setEnabled(false);
-        }   
-        jPanel2.setBackground(Color.white);
+        verNoticia("general");
     }
 
+    public int contarDatos(){
+        int aux=0;
+        login1 lg1 = new login1();
+        lg1.Conexion();
+        try{
+            Statement stmt = login1.con.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT id FROM noticias");
+            while(rs.next()){
+                aux+=1;
+            }
+        }catch(Exception ex){
+            System.out.println("Error->"+ex);
+        }
+        System.out.println(aux);
+        return aux;
+    }
+    
+    public ResultSet visualizar(){
+        login1 lg1 = new login1();
+        Connection Conexion;
+        Conexion = lg1.Conexion();
+        ResultSet rs = null;    
+        try{
+            PreparedStatement ps = login1.con.prepareStatement("SELECT * FROM noticias");
+            rs = ps.executeQuery();
+        } catch (SQLException ex) {
+            System.out.println("Error de consulta -> "+ ex.getMessage());
+        }
+        return rs;
+    }
+    
+    public void verNoticia(String facultad){
+        int numDatos = contarDatos();
+        if(numDatos==0){
+            JLabel lblno = new JLabel();
+            lblno.setText("No hay noticias por mostrar.");
+            lblno.setFont(new java.awt.Font("Trebuchet MS", 1, 32));
+            lblno.setBounds(120, 60, 600, 50);
+            jPanel2.add(lblno);
+        }
+        jPanel2.setPreferredSize(new Dimension(688,numDatos*160));
+        String titulos3[], descripciones3[], fechas3[], autores3[], facultades3[];
+        login1 lg1 = new login1();
+        lg1.Conexion();
+        if(facultad=="general"){
+            String query = "SELECT * FROM noticias";
+            try {
+                Statement stmt = login1.con.createStatement();
+                ResultSet rs = stmt.executeQuery(query);
+                titulos3 = new String[numDatos];
+                descripciones3 = new String[numDatos];
+                fechas3 = new String[numDatos];
+                autores3 = new String[numDatos];
+                facultades3 = new String[numDatos];
+                imagenes = new Object[numDatos];
+                rs.next();
+                for(int i=0; i<numDatos; i++){
+                    titulos3[i]=rs.getString("titulo");
+                    descripciones3[i]=rs.getString("descripc_breve");
+                    fechas3[i]=rs.getString("fecha");
+                    autores3[i]=rs.getString("autor");
+                    facultades3[i]=rs.getString("facultad");
+                    Blob blob = rs.getBlob("img");
+                    byte[] data = blob.getBytes(1, (int)blob.length());
+                    BufferedImage img = null;
+                    try{
+                        img = ImageIO.read(new ByteArrayInputStream(data));
+                    }catch(IOException ex){
+                        System.out.println("Error. "+ex.getMessage());
+                    }
+                    ImageIcon icono = new ImageIcon(img.getScaledInstance(500, 500, img.SCALE_DEFAULT));
+                    imagenes[i] = new JLabel(icono);
+                    rs.next();
+                    System.out.println("1");
+                }
+                titulos = new JLabel[numDatos];
+                descripciones = new JLabel[numDatos];
+                fechas = new JLabel[numDatos];
+                autores = new JLabel[numDatos];
+                facultades = new JLabel[numDatos];
+                lblimagenes = new JLabel[numDatos];
+                
+                for(int i=0; i<numDatos; i++){
+                    System.out.println("2");
+                    titulos[i] = new JLabel();
+                    titulos[i].setText(titulos3[i]);
+                    titulos[i].setFont(new java.awt.Font("Trebuchet MS", 1, 25));
+                    titulos[i].setBounds(150, 40+i*140, 530, 30);
+                    jPanel2.add(titulos[i]);
+                    descripciones[i] = new JLabel();
+                    descripciones[i].setText("<html>"+descripciones3[i]+"</html>");
+                    descripciones[i].setBounds(150, 240+i*140, 530, 80);
+                    descripciones[i].setVerticalAlignment(javax.swing.SwingConstants.TOP);
+                    jPanel2.add(descripciones[i]);
+                    fechas[i] = new JLabel();
+                    fechas[i].setText(fechas3[i]+" - ");
+                    fechas[i].setFont(new java.awt.Font("Trebuchet MS", 1, 14));
+                    fechas[i].setBounds(150, 65+i*140, 100, 20);
+                    jPanel2.add(fechas[i]);
+                    autores[i] = new JLabel();
+                    autores[i].setText(autores3[i]);
+                    autores[i].setFont(new java.awt.Font("Trebuchet MS", 1, 14));
+                    autores[i].setBounds(223, 65+i*140, 250, 20);
+                    jPanel2.add(autores[i]);
+                    facultades[i] = new JLabel();
+                    facultades[i].setText(facultades3[i]);
+                    facultades[i].setFont(new java.awt.Font("Trebuchet MS", 2, 14));
+                    facultades[i].setForeground(new java.awt.Color(0,0,102));
+                    facultades[i].setBounds(150, 140+i*140, 250, 20);
+                    jPanel2.add(facultades[i]);
+                    lblimagenes[i] = (JLabel) imagenes[i];
+                    lblimagenes[i].setBounds(150, 100+i*140, 500, 120);
+                    jPanel2.add(lblimagenes[i]);
+                    
+                }    
+            } catch (SQLException ex) {
+                System.out.println("Error. ->" + ex);
+            }
+        }
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -72,11 +185,9 @@ public class Inicio extends javax.swing.JFrame {
         btnPanel = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jPanel2 = new javax.swing.JPanel();
-        jLabel9 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setBackground(new java.awt.Color(255, 255, 255));
 
         jPanel1.setBackground(new java.awt.Color(0, 0, 102));
         jPanel1.setAutoscrolls(true);
@@ -156,7 +267,7 @@ public class Inicio extends javax.swing.JFrame {
                 .addComponent(btnExit, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(32, 32, 32)
                 .addComponent(btnPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(73, Short.MAX_VALUE))
+                .addContainerGap(81, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -179,20 +290,15 @@ public class Inicio extends javax.swing.JFrame {
         jPanel2.setAutoscrolls(true);
         jPanel2.setPreferredSize(new java.awt.Dimension(688, 400));
 
-        jLabel9.setFont(new java.awt.Font("Dialog", 1, 24)); // NOI18N
-        jLabel9.setText("NOTICIAS ACTUALES");
-
         jLabel11.setFont(new java.awt.Font("Dialog", 1, 24)); // NOI18N
-        jLabel11.setText("OTROS");
+        jLabel11.setText(" ENTRADAS REL");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(185, 185, 185)
-                .addComponent(jLabel9)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap(715, Short.MAX_VALUE)
                 .addComponent(jLabel11)
                 .addGap(112, 112, 112))
         );
@@ -200,10 +306,8 @@ public class Inicio extends javax.swing.JFrame {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel9)
-                    .addComponent(jLabel11))
-                .addContainerGap(461, Short.MAX_VALUE))
+                .addComponent(jLabel11)
+                .addContainerGap(525, Short.MAX_VALUE))
         );
 
         jScrollPane1.setViewportView(jPanel2);
@@ -215,7 +319,7 @@ public class Inicio extends javax.swing.JFrame {
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1023, Short.MAX_VALUE)
+                .addComponent(jScrollPane1)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -223,188 +327,48 @@ public class Inicio extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 502, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(79, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 570, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnInicioMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnInicioMouseClicked
-        actualizarNoticias("general");
+        Inicio ventana = new Inicio();
+        ventana.setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_btnInicioMouseClicked
-
-    private void btnPanelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnPanelMouseClicked
-        String [] botones = {"Crear noticia", "Añadir administrador"};
-        
-        int opcion = JOptionPane.showOptionDialog(this, "¿Qué quiere hacer?","Administrador",JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.QUESTION_MESSAGE,null,botones,botones[0]);
-            switch (opcion) {
-                case 0: {
-                    Admin.nombre = nombre;
-                    Admin ventana = new Admin();
-                    ventana.setVisible(true);
-                    this.dispose();
-                    break;
-                }
-                    
-                case 1: {
-                    AdministrarAdmin ventana = new AdministrarAdmin();
-                    ventana.setVisible(true);
-                    this.dispose();
-                    break;
-                }       
-            }
-            
-    }//GEN-LAST:event_btnPanelMouseClicked
 
     private void btnExitMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnExitMouseClicked
         login1 lg1 = new login1();
         lg1.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnExitMouseClicked
-    
-    public int contarDatos(){
-        int aux=0;
-        login1 lg1 = new login1();
-        lg1.Conexion();
-        try{
-            Statement stmt = login1.con.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT id FROM noticias");
-            while(rs.next()){
-                aux+=1;
-            }
-        }catch(Exception ex){
-            System.out.println("Error->"+ex);
-        }
-        System.out.println(aux);
-        return aux;
-    }
-    
-    public ResultSet visualizar(){
-        login1 lg1 = new login1();
-        Connection Conexion;
-        Conexion = lg1.Conexion();
-        ResultSet rs = null;    
-        try{
-            PreparedStatement ps = login1.con.prepareStatement("SELECT * FROM noticias");
-            rs = ps.executeQuery();
-        } catch (SQLException ex) {
-            System.out.println("Error de consulta -> "+ ex.getMessage());
-        }
-        return rs;
-    }
-    
-    public void actualizarNoticias(String facultad){
-        int numDatos = contarDatos();
-        if(numDatos==0){
-            JLabel lblno = new JLabel();
-            lblno.setText("No hay noticias por mostrar.");
-            lblno.setFont(new java.awt.Font("Trebuchet MS", 1, 32));
-            lblno.setBounds(120, 60, 600, 50);
-            jPanel2.add(lblno);
-        }
-        jPanel2.setPreferredSize(new Dimension(688,numDatos*160));
-        String titulos3[], descripciones3[], fechas3[], autores3[], facultades3[];
-        login1 lg1 = new login1();
-        lg1.Conexion();
-        if(facultad=="general"){
-            String query = "SELECT * FROM noticias";
-            try {
-                Statement stmt = login1.con.createStatement();
-                ResultSet rs = stmt.executeQuery(query);
-                titulos3 = new String[numDatos];
-                descripciones3 = new String[numDatos];
-                fechas3 = new String[numDatos];
-                autores3 = new String[numDatos];
-                facultades3 = new String[numDatos];
-                imagenes = new Object[numDatos];
-                rs.next();
-                for(int i=0; i<numDatos; i++){
-                    titulos3[i]=rs.getString("titulo");
-                    descripciones3[i]=rs.getString("descripc_breve");
-                    fechas3[i]=rs.getString("fecha");
-                    autores3[i]=rs.getString("autor");
-                    facultades3[i]=rs.getString("facultad");
-                    Blob blob = rs.getBlob("img");
-                    byte[] data = blob.getBytes(1, (int)blob.length());
-                    BufferedImage img = null;
-                    try{
-                        img = ImageIO.read(new ByteArrayInputStream(data));
-                    }catch(IOException ex){
-                        System.out.println("Error. "+ex.getMessage());
-                    }
-                    ImageIcon icono = new ImageIcon(img.getScaledInstance(120, 120, img.SCALE_DEFAULT));
-                    imagenes[i] = new JLabel(icono);
-                    rs.next();
-                    System.out.println("1");
-                }
-                titulos = new JLabel[numDatos];
-                descripciones = new JLabel[numDatos];
-                fechas = new JLabel[numDatos];
-                autores = new JLabel[numDatos];
-                facultades = new JLabel[numDatos];
-                btnLeerMas = new JButton[numDatos];
-                lblimagenes = new JLabel[numDatos];
-                
-                for(int i=0; i<numDatos; i++){
-                    System.out.println("2");
-                    titulos[i] = new JLabel();
-                    titulos[i].setText(titulos3[i]);
-                    titulos[i].setFont(new java.awt.Font("Trebuchet MS", 1, 18));
-                    titulos[i].setBounds(150, 40+i*140, 530, 30);
-                    jPanel2.add(titulos[i]);
-                    descripciones[i] = new JLabel();
-                    descripciones[i].setText("<html>"+descripciones3[i]+"</html>");
-                    descripciones[i].setBounds(150, 90+i*140, 530, 80);
-                    descripciones[i].setVerticalAlignment(javax.swing.SwingConstants.TOP);
-                    jPanel2.add(descripciones[i]);
-                    fechas[i] = new JLabel();
-                    fechas[i].setText(fechas3[i]+" - ");
-                    fechas[i].setFont(new java.awt.Font("Trebuchet MS", 1, 14));
-                    fechas[i].setBounds(150, 65+i*140, 100, 20);
-                    jPanel2.add(fechas[i]);
-                    autores[i] = new JLabel();
-                    autores[i].setText(autores3[i]);
-                    autores[i].setFont(new java.awt.Font("Trebuchet MS", 1, 14));
-                    autores[i].setBounds(223, 65+i*140, 250, 20);
-                    jPanel2.add(autores[i]);
-                    facultades[i] = new JLabel();
-                    facultades[i].setText(facultades3[i]);
-                    facultades[i].setFont(new java.awt.Font("Trebuchet MS", 2, 14));
-                    facultades[i].setForeground(new java.awt.Color(0,0,102));
-                    facultades[i].setBounds(150, 140+i*140, 250, 20);
-                    jPanel2.add(facultades[i]);
-                    btnLeerMas[i] = new JButton();
-                    btnLeerMas[i].setText("LEER MAS");
-                    btnLeerMas[i].setBackground(new java.awt.Color(0,0,102));
-                    btnLeerMas[i].setForeground(Color.white);
-                    btnLeerMas[i].setBounds(550, 140+i*140, 100, 30);
-                    jPanel2.add(btnLeerMas[i]);
-                    lblimagenes[i] = (JLabel) imagenes[i];
-                    lblimagenes[i].setBounds(10, 50+i*140, 120, 120);
-                    jPanel2.add(lblimagenes[i]);
-                    
-                    btnLeerMas[i].addActionListener(new ActionListener(){
-                    @Override
-                    public void actionPerformed(ActionEvent evt){
-                        btnLeerMasActionPerformed(evt);
-                        }
-                        });
-                }    
-            } catch (SQLException ex) {
-                System.out.println("Error. ->" + ex);
-            }
-        }
-    }
-        
-    public void btnLeerMasActionPerformed(ActionEvent evt){
-        
-        JOptionPane.showMessageDialog(null, "ID DE LA NOTICIA: "+icia);
-                Noticia ventana = new Noticia();
+
+    private void btnPanelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnPanelMouseClicked
+        String [] botones = {"Crear noticia", "Añadir administrador"};
+
+        int opcion = JOptionPane.showOptionDialog(this, "¿Qué quiere hacer?","Administrador",JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.QUESTION_MESSAGE,null,botones,botones[0]);
+        switch (opcion) {
+            case 0: {
+                Admin.nombre = nombre;
+                Admin ventana = new Admin();
                 ventana.setVisible(true);
                 this.dispose();
-    }
-    
+                break;
+            }
+
+            case 1: {
+                AdministrarAdmin ventana = new AdministrarAdmin();
+                ventana.setVisible(true);
+                this.dispose();
+                break;
+            }
+        }
+
+    }//GEN-LAST:event_btnPanelMouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -422,23 +386,20 @@ public class Inicio extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Inicio.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Noticia.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Inicio.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Noticia.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Inicio.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Noticia.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Inicio.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Noticia.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-        //</editor-fold>
-        //</editor-fold>
-        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Inicio().setVisible(true);
+                new Noticia().setVisible(true);
             }
         });
     }
@@ -454,7 +415,6 @@ public class Inicio extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
