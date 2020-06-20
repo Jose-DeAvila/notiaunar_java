@@ -33,7 +33,7 @@ import login.login1;
  */
 public class Noticia extends javax.swing.JFrame {
 
-    public static int id;
+    public static int id, tipo;
     /**
      * Creates new form Noticia
      */
@@ -42,6 +42,14 @@ public class Noticia extends javax.swing.JFrame {
         setLocationRelativeTo(null);
         this.getContentPane().setBackground(Color.white);
         mostrarNoticia(id);
+        this.setExtendedState(this.MAXIMIZED_BOTH);
+        if(tipo==1){
+            btnPanel.setVisible(true);
+            btnPanel.setEnabled(true);
+        }else{
+            btnPanel.setVisible(false);
+            btnPanel.setEnabled(false);
+        }   
     }
 
     public int contarDatos(){
@@ -57,7 +65,6 @@ public class Noticia extends javax.swing.JFrame {
         }catch(Exception ex){
             System.out.println("Error->"+ex);
         }
-        System.out.println(aux);
         return aux;
     }
     
@@ -86,8 +93,7 @@ public class Noticia extends javax.swing.JFrame {
             JLabel lblTitulo = new JLabel();
             lblTitulo.setText(rs.getString("titulo"));
             lblTitulo.setFont(new java.awt.Font("Trebuchet MS", 1, 32));
-            lblTitulo.setHorizontalAlignment(new javax.swing.SwingConstants() {
-            }.CENTER);
+            lblTitulo.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
             lblTitulo.setBounds(40, 20, 650, 60);
             jPanel2.add(lblTitulo);
             JLabel lblImagen;
@@ -103,9 +109,13 @@ public class Noticia extends javax.swing.JFrame {
             ImageIcon icono = new ImageIcon(img.getScaledInstance(650, 650, img.SCALE_DEFAULT));
             lblImagen = new JLabel(icono);
             lblImagen.setBounds(40, 100, 650, 650);
-            System.out.println(img.getWidth());
             jPanel2.add(lblImagen);
-            jPanel2.setPreferredSize(new Dimension(688, 2000));
+            JLabel contenido = new JLabel();
+            contenido.setText(rs.getString("text_complet"));
+            contenido.setBounds(40, 800, 650, 200);
+            contenido.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+            jPanel2.add(contenido);
+            jPanel2.setPreferredSize(new Dimension(688, 1200));
         }
         catch(SQLException ex){
             

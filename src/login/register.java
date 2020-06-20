@@ -207,7 +207,7 @@ public class register extends javax.swing.JFrame {
             }else{
                 String passs = new String(arrayC);
                 Statement stmt = con.createStatement();
-                int numero_datos = stmt.executeUpdate("INSERT INTO usuarios (nombreCompleto, tipo, programa, email,contrasenia)"+" values(" +completeName+ ", 0, " +program+ "," +correo+ ",'" +passs+ "')");
+                int numero_datos = stmt.executeUpdate("INSERT INTO usuarios (nombreCompleto, tipo, programa, email,contrasena)"+" values(" +completeName+ ", 0, " +program+ "," +correo+ ",'" +passs+ "')");
                 if (numero_datos>0){
                     JOptionPane.showMessageDialog(null, "Usuario registrado correctamente. Espere mientras lo redireccionamos al inicio de sesión.");
                     Thread.sleep(1000);
