@@ -5,21 +5,13 @@
  */
 package inside;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Point;
-import java.awt.PopupMenu;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.net.URISyntaxException;
 import java.sql.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.*;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import login.login1;
@@ -32,7 +24,7 @@ public class Inicio extends javax.swing.JFrame {
 
     int icia;
     public static int tipo, ids3[];
-    public static String nombre, nomFacult;
+    public static String nombre, nomFacult, nomFacult2;
     public JLabel titulos[], descripciones[], fechas[], autores[], facultades[], lblimagenes[];
     public JButton btnLeerMas[];
     public Object imagenes[];
@@ -214,9 +206,8 @@ public class Inicio extends javax.swing.JFrame {
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(17, 17, 17)
                 .addComponent(jLabel9)
-                .addContainerGap(450, Short.MAX_VALUE))
+                .addGap(0, 467, Short.MAX_VALUE))
         );
 
         jScrollPane1.setViewportView(jPanel2);
@@ -237,7 +228,7 @@ public class Inicio extends javax.swing.JFrame {
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 502, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(79, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -256,10 +247,20 @@ public class Inicio extends javax.swing.JFrame {
         int opcion = JOptionPane.showOptionDialog(this, "¿Qué quiere hacer?","Administrador",JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.QUESTION_MESSAGE,null,botones,botones[0]);
             switch (opcion) {
                 case 0: {
-                    Admin.nombre = nombre;
-                    Admin ventana = new Admin();
-                    ventana.setVisible(true);
-                    this.dispose();
+                    if(java.awt.Desktop.isDesktopSupported()){
+                        java.awt.Desktop desktop = java.awt.Desktop.getDesktop();
+                        
+                        if(desktop.isSupported(java.awt.Desktop.Action.BROWSE)){
+                            try{
+                                JOptionPane.showMessageDialog(null, "Espere mientras lo redireccionamos para que pueda crear su noticia");
+                                java.net.URI uri = new java.net.URI("http://localhost/notiaunar/other/noti_crear.php");
+                                desktop.browse(uri);
+                            }
+                            catch(URISyntaxException | IOException e){
+                                System.out.println("Error -> "+e);
+                            }
+                        }
+                    }
                     break;
                 }
                     
@@ -281,6 +282,7 @@ public class Inicio extends javax.swing.JFrame {
 
     private void btnInformaticaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnInformaticaMouseClicked
         Inicio.nomFacult = "INGENIERÍA INFORMÁTICA";
+        Inicio.nomFacult2 = "Informatica";
         Inicio init = new Inicio();
         init.setVisible(true);
         this.dispose();
@@ -288,6 +290,7 @@ public class Inicio extends javax.swing.JFrame {
 
     private void btnContaduriaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnContaduriaMouseClicked
         Inicio.nomFacult = "CONTADURÍA PÚBLICA";
+        Inicio.nomFacult2 = "Contaduria";
         Inicio init = new Inicio();
         init.setVisible(true);
         this.dispose();
@@ -295,6 +298,7 @@ public class Inicio extends javax.swing.JFrame {
 
     private void btnDecoracionMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnDecoracionMouseClicked
         Inicio.nomFacult = "DECORACIÓN DE INTERIORES";
+        Inicio.nomFacult2 = "Decoracion";
         Inicio init = new Inicio();
         init.setVisible(true);
         this.dispose();
@@ -302,12 +306,13 @@ public class Inicio extends javax.swing.JFrame {
 
     private void btnCocinaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnCocinaMouseClicked
         Inicio.nomFacult = "COCINA NACIONAL E INTERNACIONAL";
+        Inicio.nomFacult2 = "Cocina";
         Inicio init = new Inicio();
         init.setVisible(true);
         this.dispose();
     }//GEN-LAST:event_btnCocinaMouseClicked
     
-    public int contarDatos(){
+    public static int contarDatos(){
         int aux=0;
         login1 lg1 = new login1();
         lg1.Conexion();
@@ -324,7 +329,7 @@ public class Inicio extends javax.swing.JFrame {
         }else{
             try{
                 Statement stmt = login1.con.createStatement();
-                ResultSet rs = stmt.executeQuery("SELECT id FROM noticias WHERE facultad='"+nomFacult+"'");
+                ResultSet rs = stmt.executeQuery("SELECT id FROM noticias WHERE facultad='"+nomFacult+"' OR facultad='"+nomFacult2+"'");
                 while(rs.next()){
                     aux+=1;
                 }
@@ -355,10 +360,10 @@ public class Inicio extends javax.swing.JFrame {
             JLabel lblno = new JLabel();
             lblno.setText("No hay noticias por mostrar.");
             lblno.setFont(new java.awt.Font("Trebuchet MS", 1, 32));
-            lblno.setBounds(120, 60, 600, 50);
+            lblno.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+            lblno.setBounds(0, 60, 1348, 100);
             jPanel2.add(lblno);
         }
-        System.out.println(facultad);
         jPanel2.setPreferredSize(new Dimension(688,numDatos*250));
         String titulos3[], descripciones3[], fechas3[], autores3[], facultades3[];
         login1 lg1 = new login1();
@@ -407,7 +412,8 @@ public class Inicio extends javax.swing.JFrame {
                     titulos[i] = new JLabel();
                     titulos[i].setText(titulos3[i]);
                     titulos[i].setFont(new java.awt.Font("Trebuchet MS", 1, 28));
-                    titulos[i].setBounds(220, 50+i*240, 530, 30);
+                    titulos[i].setVerticalAlignment(javax.swing.SwingConstants.CENTER);
+                    titulos[i].setBounds(220, 50+i*240, 830, 30);
                     jPanel2.add(titulos[i]);
                     descripciones[i] = new JLabel();
                     descripciones[i].setText("<html>"+descripciones3[i]+"</html>");
@@ -418,29 +424,41 @@ public class Inicio extends javax.swing.JFrame {
                     fechas[i] = new JLabel();
                     fechas[i].setText(fechas3[i]+" - ");
                     fechas[i].setFont(new java.awt.Font("Trebuchet MS", 1, 16));
-                    fechas[i].setBounds(220, 80+i*240, 100, 20);
+                    fechas[i].setBounds(220, 80+i*240, 180, 20);
                     jPanel2.add(fechas[i]);
                     autores[i] = new JLabel();
                     autores[i].setText(autores3[i]);
                     autores[i].setFont(new java.awt.Font("Trebuchet MS", 1, 16));
-                    autores[i].setBounds(310, 80+i*240, 250, 20);
+                    autores[i].setBounds(390, 80+i*240, 250, 20);
                     jPanel2.add(autores[i]);
                     facultades[i] = new JLabel();
                     facultades[i].setText(facultades3[i]);
                     facultades[i].setFont(new java.awt.Font("Trebuchet MS", 2, 20   ));
                     facultades[i].setForeground(new java.awt.Color(0,0,102));
-                    facultades[i].setBounds(220, 230+i*240, 350, 20);
+                    facultades[i].setBounds(220, 210+i*240, 350, 20);
                     jPanel2.add(facultades[i]);
+                    btnLeerMas[i] = new JButton();
+                    btnLeerMas[i].setText("Leer más");
+                    btnLeerMas[i].setForeground(Color.white);
+                    btnLeerMas[i].setBackground(new java.awt.Color(0,0,102));
+                    btnLeerMas[i].setFont(new java.awt.Font("Trebuchet MS", 2, 14));
+                    btnLeerMas[i].setBounds(620, 190+i*240, 110,40);
+                    jPanel2.add(btnLeerMas[i]);
                     lblimagenes[i] = (JLabel) imagenes[i];
                     lblimagenes[i].setBounds(10, 50+i*240, 200, 200);
                     jPanel2.add(lblimagenes[i]);
+                    btnLeerMas[i].addActionListener(new ActionListener(){
+                        public void actionPerformed(ActionEvent evt){
+                            btnLeerMasActionPerformed(evt);
+                        }
+                    });
                 }    
             } catch (SQLException ex) {
                 System.out.println("Error. ->" + ex);
             }
         }
         else{
-            String query = "SELECT * FROM noticias WHERE facultad='"+facultad+"'";
+            String query = "SELECT * FROM noticias WHERE facultad='"+facultad+"' OR facultad='"+nomFacult2+"'";
             try {
                 Statement stmt = login1.con.createStatement();
                 ResultSet rs = stmt.executeQuery(query);
@@ -483,7 +501,8 @@ public class Inicio extends javax.swing.JFrame {
                     titulos[i] = new JLabel();
                     titulos[i].setText(titulos3[i]);
                     titulos[i].setFont(new java.awt.Font("Trebuchet MS", 1, 28));
-                    titulos[i].setBounds(220, 50+i*240, 530, 30);
+                    titulos[i].setVerticalAlignment(javax.swing.SwingConstants.CENTER);
+                    titulos[i].setBounds(220, 50+i*240, 830, 30);
                     jPanel2.add(titulos[i]);
                     descripciones[i] = new JLabel();
                     descripciones[i].setText("<html>"+descripciones3[i]+"</html>");
@@ -507,12 +526,35 @@ public class Inicio extends javax.swing.JFrame {
                     facultades[i].setForeground(new java.awt.Color(0,0,102));
                     facultades[i].setBounds(220, 230+i*240, 350, 20);
                     jPanel2.add(facultades[i]);
+                    btnLeerMas[i] = new JButton();
+                    btnLeerMas[i].setText("Leer más");
+                    btnLeerMas[i].setForeground(Color.white);
+                    btnLeerMas[i].setBackground(new java.awt.Color(0,0,102));
+                    btnLeerMas[i].setFont(new java.awt.Font("Trebuchet MS", 2, 14));
+                    btnLeerMas[i].setBounds(620, 190+i*240, 110,40);
+                    jPanel2.add(btnLeerMas[i]);
                     lblimagenes[i] = (JLabel) imagenes[i];
                     lblimagenes[i].setBounds(10, 50+i*240, 200, 200);
                     jPanel2.add(lblimagenes[i]);
                 }    
             } catch (SQLException ex) {
                 System.out.println("Error. ->" + ex);
+            }
+        }
+    }
+    
+    public void btnLeerMasActionPerformed(ActionEvent evt){
+        int numDatos = contarDatos();
+        JButton btnPulsed = (JButton) evt.getSource();
+        int aux=0;
+        Point location = btnPulsed.getLocation();
+        for(int i=0; i<numDatos; i++){
+            if(location.equals(btnLeerMas[i].getLocation())){
+                Noticia.id = ids3[i];
+                Noticia nt = new Noticia();
+                nt.setVisible(true);
+                this.dispose();
+                break;
             }
         }
     }

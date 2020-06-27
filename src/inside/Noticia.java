@@ -7,24 +7,13 @@ package inside;
 
 import static inside.Inicio.ids3;
 import static inside.Inicio.nombre;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.sql.Blob;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.io.*;
+import java.sql.*;
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
+import javax.swing.*;
 import login.login1;
 
 /**
@@ -34,6 +23,9 @@ import login.login1;
 public class Noticia extends javax.swing.JFrame {
 
     public static int id, tipo;
+    public JButton btnLeerMas[];
+    public int ids[];
+
     /**
      * Creates new form Noticia
      */
@@ -42,85 +34,165 @@ public class Noticia extends javax.swing.JFrame {
         setLocationRelativeTo(null);
         this.getContentPane().setBackground(Color.white);
         mostrarNoticia(id);
+        mostrarRelacionados();
         this.setExtendedState(this.MAXIMIZED_BOTH);
-        if(tipo==1){
+        if (tipo == 1) {
             btnPanel.setVisible(true);
             btnPanel.setEnabled(true);
-        }else{
+        } else {
             btnPanel.setVisible(false);
             btnPanel.setEnabled(false);
-        }   
+        }
+        jPanel2.setBackground(Color.white);
     }
 
-    public int contarDatos(){
-        int aux=0;
+    public int contarDatos() {
+        int aux = 0;
         login1 lg1 = new login1();
         lg1.Conexion();
-        try{
+        try {
             Statement stmt = login1.con.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT id FROM noticias");
-            while(rs.next()){
-                aux+=1;
+            while (rs.next()) {
+                aux += 1;
             }
-        }catch(Exception ex){
-            System.out.println("Error->"+ex);
+            stmt.close();
+        } catch (Exception ex) {
+            System.out.println("Error->" + ex);
         }
         return aux;
     }
-    
-    public ResultSet visualizar(){
+
+    public ResultSet visualizar() {
         login1 lg1 = new login1();
         Connection Conexion;
         Conexion = lg1.Conexion();
-        ResultSet rs = null;    
-        try{
+        ResultSet rs = null;
+        try {
             PreparedStatement ps = login1.con.prepareStatement("SELECT * FROM noticias");
             rs = ps.executeQuery();
+            ps.close();
         } catch (SQLException ex) {
-            System.out.println("Error de consulta -> "+ ex.getMessage());
+            System.out.println("Error de consulta -> " + ex.getMessage());
         }
         return rs;
     }
-    
-    public void mostrarNoticia(int id){
+
+    private void mostrarNoticia(int id) {
         login1 lg1 = new login1();
         lg1.Conexion();
-        String query = "SELECT * FROM noticias WHERE id='"+id+"'";
-        try{
+        String query = "SELECT * FROM noticias WHERE id='" + id + "'";
+        try {
             Statement stmt = login1.con.createStatement();
             ResultSet rs = stmt.executeQuery(query);
             rs.next();
             JLabel lblTitulo = new JLabel();
-            lblTitulo.setText(rs.getString("titulo"));
+            lblTitulo.setText("<html>" + rs.getString("titulo") + "</html>");
             lblTitulo.setFont(new java.awt.Font("Trebuchet MS", 1, 32));
             lblTitulo.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-            lblTitulo.setBounds(40, 20, 650, 60);
+            lblTitulo.setBounds(40, 20, 650, rs.getString("titulo").length()*2);
             jPanel2.add(lblTitulo);
             JLabel lblImagen;
             Blob blob = rs.getBlob("img");
-            byte[] data = blob.getBytes(1, (int)blob.length());
+            byte[] data = blob.getBytes(1, (int) blob.length());
             BufferedImage img = null;
-            try{
+            try {
                 img = ImageIO.read(new ByteArrayInputStream(data));
-            }
-            catch(IOException ex){
-                System.out.println("Error. "+ex.getMessage());
+            } catch (IOException ex) {
+                System.out.println("Error. " + ex.getMessage());
             }
             ImageIcon icono = new ImageIcon(img.getScaledInstance(650, 650, img.SCALE_DEFAULT));
             lblImagen = new JLabel(icono);
-            lblImagen.setBounds(40, 100, 650, 650);
+            lblImagen.setBounds(40, (int) (rs.getString("titulo").length()*2.5), 650, 650);
             jPanel2.add(lblImagen);
             JLabel contenido = new JLabel();
             contenido.setText(rs.getString("text_complet"));
-            contenido.setBounds(40, 800, 650, 200);
+            contenido.setBounds(40, 800, 650, rs.getString("text_complet").length());
             contenido.setVerticalAlignment(javax.swing.SwingConstants.TOP);
             jPanel2.add(contenido);
-            jPanel2.setPreferredSize(new Dimension(688, 1200));
-        }
-        catch(SQLException ex){
-            
+            int height=(650+rs.getString("titulo").length()*2+(rs.getString("text_complet").length()/2));
+            jPanel2.setPreferredSize(new Dimension(688, height));
+        } catch (SQLException ex) {
+            System.out.println("Error -> "+ex);
         }
     }
+    
+    private void mostrarRelacionados(){
+        // x=717,y=22
+        int numDatos = Inicio.contarDatos();
+        login1 lg1 = new login1();
+        String descrip[] = new String[3];
+        ids = new int[3];
+        Object imagenes[] = new Object[3];
+        btnLeerMas = new JButton[3];
+        int aux = 0;
+        lg1.Conexion();
+        String query2 = "SELECT * FROM noticias where id!="+id+" limit 3";
+        try{
+            Statement stmt = login1.con.createStatement();
+            ResultSet rs = stmt.executeQuery(query2);
+            rs.next();
+            for(int i=0; i<3; i++){
+                descrip[i] = rs.getString("descripc_breve");
+                Blob blob = rs.getBlob("img");
+                byte[] data = blob.getBytes(1, (int) blob.length());
+                BufferedImage img = null;
+                try{
+                    img = ImageIO.read(new ByteArrayInputStream(data));
+                }catch(Exception ex){
+                    System.out.println("Error ->"+ex);
+                }
+                ImageIcon icono = new ImageIcon(img.getScaledInstance(100, 100, img.SCALE_DEFAULT));
+                imagenes[i]=new JLabel(icono);
+                ids[i] = rs.getInt("id");
+                rs.next();
+            }
+            
+            JLabel descrip3[] = new JLabel[3];
+            JLabel imagenes3[] = new JLabel[3];
+            
+            for(int i=0; i<3; i++){
+                descrip3[i] = new JLabel();
+                descrip3[i].setText("<html>"+descrip[i]+"</html>");
+                descrip3[i].setVerticalAlignment(javax.swing.SwingConstants.CENTER);
+                descrip3[i].setBounds(1010, 65+i*120, 200, 110);
+                jPanel2.add(descrip3[i]);
+                imagenes3[i] = (JLabel) imagenes[i];
+                imagenes3[i].setBounds(900, 72+i*120, 100, 100);
+                jPanel2.add(imagenes3[i]);
+                btnLeerMas[i] = new JButton();
+                btnLeerMas[i].setText("Leer más");
+                btnLeerMas[i].setForeground(Color.white);
+                btnLeerMas[i].setBackground(new java.awt.Color(0,0,102));
+                btnLeerMas[i].setFont(new java.awt.Font("Trebuchet MS", 2, 14));
+                btnLeerMas[i].setBounds(1200, 135+i*120, 110, 40);
+                jPanel2.add(btnLeerMas[i]);
+                btnLeerMas[i].addActionListener(new ActionListener(){
+                    public void actionPerformed(ActionEvent evt){
+                        btnLeerMasActionPerformed(evt);
+                    }
+                });
+            }
+        }catch(Exception ex){
+            System.out.println(ex);
+        }
+    }
+    
+    public void btnLeerMasActionPerformed(ActionEvent evt){
+        JButton btnPulsed = (JButton) evt.getSource();
+        int aux=0;
+        Point location = btnPulsed.getLocation();
+        for(int i=0; i<3; i++){
+            if(location.equals(btnLeerMas[i].getLocation())){
+                Noticia.id = ids[i];
+                Noticia nt = new Noticia();
+                nt.setVisible(true);
+                this.dispose();
+                break;
+            }
+        }
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -255,17 +327,17 @@ public class Noticia extends javax.swing.JFrame {
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap(719, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                .addContainerGap(723, Short.MAX_VALUE)
                 .addComponent(jLabel11)
-                .addGap(112, 112, 112))
+                .addGap(108, 108, 108))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(22, 22, 22)
                 .addComponent(jLabel11)
-                .addContainerGap(526, Short.MAX_VALUE))
+                .addContainerGap(346, Short.MAX_VALUE))
         );
 
         jScrollPane1.setViewportView(jPanel2);
@@ -307,9 +379,9 @@ public class Noticia extends javax.swing.JFrame {
     }//GEN-LAST:event_btnExitMouseClicked
 
     private void btnPanelMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnPanelMouseClicked
-        String [] botones = {"Crear noticia", "Añadir administrador"};
+        String[] botones = {"Crear noticia", "Añadir administrador"};
 
-        int opcion = JOptionPane.showOptionDialog(this, "¿Qué quiere hacer?","Administrador",JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.QUESTION_MESSAGE,null,botones,botones[0]);
+        int opcion = JOptionPane.showOptionDialog(this, "¿Qué quiere hacer?", "Administrador", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, botones, botones[0]);
         switch (opcion) {
             case 0: {
                 Admin.nombre = nombre;
@@ -328,6 +400,16 @@ public class Noticia extends javax.swing.JFrame {
         }
 
     }//GEN-LAST:event_btnPanelMouseClicked
+
+    public int contarSaltos(String cadena) {
+        int posicion, contador = 0;
+        posicion = cadena.indexOf("<br />");
+        while (posicion != -1) {
+            contador++;
+            posicion = cadena.indexOf("<br />", posicion + 1);
+        }
+        return contador;
+    }
 
     /**
      * @param args the command line arguments
